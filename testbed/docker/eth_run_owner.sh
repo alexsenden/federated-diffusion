@@ -1,4 +1,6 @@
 #!/bin/sh
 
-cp /root/.ethereum/_geth/nodekey_owner /root/.ethereum/geth/nodekey
-geth --networkid=${NETWORK_ID} "$@"
+set -x
+
+# cp /.ethereum/_geth/nodekey_owner /.ethereum/geth/nodekey
+geth --networkid=${NETWORK_ID} --datadir=/writable/.ethereum "$@"

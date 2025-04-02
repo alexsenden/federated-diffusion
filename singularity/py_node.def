@@ -1,0 +1,54 @@
+BootStrap: docker
+From: pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
+
+%arguments
+    BLOCKLEARNING_PATH="/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning"
+
+%files
+    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/ethereum/datadir/accounts.json" /accounts.json
+    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/run_server.py" /run_server.py
+    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/docker/run_server.sh" /run_server.sh
+    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/run_client.py" /run_client.py
+    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/docker/run_client.sh" /run_client.sh
+    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/run_vertical_server.py" /run_vertical_server.py
+    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/docker/run_vertical_server.sh" /run_vertical_server.sh
+    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/run_vertical_client.py" /run_vertical_client.py
+    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/docker/run_vertical_client.sh" /run_vertical_client.sh
+    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/blocklearning" /blocklearning
+
+%post
+    # Update and install required packages
+    apt update && apt install -y jq dnsutils wget net-tools
+
+    # Upgrade pip and install Python dependencies
+    python -m pip install --upgrade pip
+    pip install torch==2.6.0 torchvision==0.21.0 web3==7.10.0 idx2numpy==1.2.3 numpy==2.1.3 click==8.1.8 diffprivlib==0.6.5
+
+    # Install IPFS
+    wget https://dist.ipfs.io/go-ipfs/v0.12.2/go-ipfs_v0.12.2_linux-amd64.tar.gz
+    tar -xvzf go-ipfs_v0.12.2_linux-amd64.tar.gz
+    cd go-ipfs && bash install.sh
+    ipfs --version
+
+    # Create required directories
+    mkdir -p /dataset
+
+    # Copy application files
+    # cp {{BLOCKLEARNING_PATH}}/testbed/ethereum/datadir/accounts.json /root/accounts.json
+    # cp {{BLOCKLEARNING_PATH}}/testbed/run_server.py /root/run_server.py
+    # cp {{BLOCKLEARNING_PATH}}/testbed/docker/run_server.sh /root/run_server.sh
+    # cp {{BLOCKLEARNING_PATH}}/testbed/run_client.py /root/run_client.py
+    # cp {{BLOCKLEARNING_PATH}}/testbed/docker/run_client.sh /root/run_client.sh
+    # cp {{BLOCKLEARNING_PATH}}/testbed/run_vertical_server.py /root/run_vertical_server.py
+    # cp {{BLOCKLEARNING_PATH}}/testbed/docker/run_vertical_server.sh /root/run_vertical_server.sh
+    # cp {{BLOCKLEARNING_PATH}}/testbed/run_vertical_client.py /root/run_vertical_client.py
+    # cp {{BLOCKLEARNING_PATH}}/testbed/docker/run_vertical_client.sh /root/run_vertical_client.sh
+    # cp -r {{BLOCKLEARNING_PATH}}/blocklearning /root/blocklearning
+
+%environment
+    export PATH=/usr/local/bin:$PATH
+    export ETH_DATA_DIR=/.ethereum
+    export IPFS_PATH=/.ipfs
+
+%runscript
+    exec /bin/bash

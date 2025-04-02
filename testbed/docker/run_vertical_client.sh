@@ -13,10 +13,10 @@ PROVIDER=$(dig bfl-geth-miner-$PRVINDEX +short)
 
 python run_vertical_client.py \
   --provider "http://$PROVIDER:8545" \
-  --abi /root/abi.json \
+  --abi /abi.json \
   --ipfs $IPFS_API \
   --account $ACCOUNT \
   --passphrase $PASSWORD \
   --contract $CONTRACT \
-  --log /root/log.log \
-  --train /root/dataset/train_$((INDEX-1)).npz
+  --log /log.log \
+  --train /dataset/train_$((INDEX-1)).npz

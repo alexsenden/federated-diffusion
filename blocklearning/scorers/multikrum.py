@@ -1,31 +1,32 @@
 import numpy as np
 from ..utilities import floats_to_ints
 
-class MultiKrumScorer():
-  def __init__(self, weights_loader) -> None:
-    self.weights_loader = weights_loader
 
-  def score(self, round, trainers, submissions):
-    R = len(submissions)
-    f = R // 3 - 1
-    closest_updates = R - f - 2
+class MultiKrumScorer:
+    def __init__(self, weights_loader) -> None:
+        self.weights_loader = weights_loader
 
-    weights_cids = [cid for (_, _, _, cid) in submissions]
-    weights = [self.weights_loader.load(cid) for cid in weights_cids]
+    def score(self, round, trainers, submissions):
+        R = len(submissions)
+        f = R // 3 - 1
+        closest_updates = R - f - 2
 
-    scores = []
+        weights_cids = [cid for (_, _, _, cid) in submissions]
+        weights = [self.weights_loader.load(cid) for cid in weights_cids]
 
-    for i in range(len(weights)):
-      dists = []
+        scores = []
 
-      for j in range(len(weights)):
-        if i == j:
-          continue
-        dists.append(np.linalg.norm(weights[j] - weights[i]))
+        for i in range(len(weights)):
+            dists = []
 
-      dists_sorted = np.argsort(dists)[:closest_updates]
-      score = np.array([dists[i] for i in dists_sorted]).sum()
-      scores.append(score)
+            for j in range(len(weights)):
+                if i == j:
+                    continue
+                dists.append(np.linalg.norm(weights[j] - weights[i]))
 
-    scores = floats_to_ints(scores)
-    return trainers, scores
+            dists_sorted = np.argsort(dists)[:closest_updates]
+            score = np.array([dists[i] for i in dists_sorted]).sum()
+            scores.append(score)
+
+        scores = floats_to_ints(scores)
+        return trainers, scores

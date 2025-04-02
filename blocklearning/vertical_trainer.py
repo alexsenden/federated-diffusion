@@ -2,80 +2,114 @@ import json
 import time
 import tensorflow as tf
 
-class VerticalTrainer():
-  def __init__(self, contract, model, x_train, datastore, logger = None):
-    self.logger = logger
-    self.contract = contract
-    self.x_train = x_train
-    self.datastore = datastore
-    self.model = model
-    self.current_output = None
-    self.current_round = None
-    self.__register()
 
-  def forward(self):
-    (round, _) = self.contract.get_training_round()
-    self.current_round = round
+class VerticalTrainer:
+    def __init__(self, contract, model, x_train, datastore, logger=None):
+        self.logger = logger
+        self.contract = contract
+        self.x_train = x_train
+        self.datastore = datastore
+        self.model = model
+        self.current_output = None
+        self.current_round = None
+        self.__register()
 
-    if self.logger is not None:
-      self.logger.info(json.dumps({ 'event': 'forward_start', 'round': round,'ts': time.time_ns() }))
+    def forward(self):
+        (round, _) = self.contract.get_training_round()
+        self.current_round = round
 
-    # 2. Bottom Model Forward Propagation
-    output = self.model.model(self.x_train, training=True)
+        if self.logger is not None:
+            self.logger.info(
+                json.dumps(
+                    {"event": "forward_start", "round": round, "ts": time.time_ns()}
+                )
+            )
 
-    output = output.numpy()
-    output_id = self.datastore.store(output)
-    self.current_output = output
+        # 2. Bottom Model Forward Propagation
+        output = self.model.model(self.x_train, training=True)
 
-    # 3. Transfer Forward Output
-    submission = {
-      'trainingAccuracy': 0,
-      'testingAccuracy': 0,
-      'trainingDataPoints': len(self.x_train),
-      'weights': output_id # We use the weights for the intermediate output in the vertical case.
-    }
+        output = output.numpy()
+        output_id = self.datastore.store(output)
+        self.current_output = output
 
-    self.contract.submit_submission(submission)
+        # 3. Transfer Forward Output
+        submission = {
+            "trainingAccuracy": 0,
+            "testingAccuracy": 0,
+            "trainingDataPoints": len(self.x_train),
+            "weights": output_id,  # We use the weights for the intermediate output in the vertical case.
+        }
 
-    if self.logger is not None:
-      self.logger.info(json.dumps({ 'event': 'forward_end', 'round': round, 'weights': output_id, 'ts': time.time_ns(), 'submission': submission }))
+        self.contract.submit_submission(submission)
 
-  def backward(self):
-    round = self.current_round
-    self.current_round = None
+        if self.logger is not None:
+            self.logger.info(
+                json.dumps(
+                    {
+                        "event": "forward_end",
+                        "round": round,
+                        "weights": output_id,
+                        "ts": time.time_ns(),
+                        "submission": submission,
+                    }
+                )
+            )
 
-    # 6. Backward output transmission
-    output_grads_id = self.contract.get_gradient()
-    output_grads = self.datastore.load(output_grads_id)
-    output_grads = tf.convert_to_tensor(output_grads)
+    def backward(self):
+        round = self.current_round
+        self.current_round = None
 
-    if self.logger is not None:
-      self.logger.info(json.dumps({ 'event': 'backward_start', 'round': round,'ts': time.time_ns() }))
+        # 6. Backward output transmission
+        output_grads_id = self.contract.get_gradient()
+        output_grads = self.datastore.load(output_grads_id)
+        output_grads = tf.convert_to_tensor(output_grads)
 
-    # 7. Bottom Model Backward Propagation
-    expected = tf.Variable(self.current_output)
-    self.current_output = None
+        if self.logger is not None:
+            self.logger.info(
+                json.dumps(
+                    {"event": "backward_start", "round": round, "ts": time.time_ns()}
+                )
+            )
 
-    self.model.model.optimizer.apply_gradients(zip([output_grads], [expected]))
+        # 7. Bottom Model Backward Propagation
+        expected = tf.Variable(self.current_output)
+        self.current_output = None
 
-    with tf.GradientTape(persistent=True) as tape:
-      prediction = self.model.model(self.x_train, training=False)
-      loss_value = self.model.model.loss(expected, prediction)
+        self.model.model.optimizer.apply_gradients(zip([output_grads], [expected]))
 
-    grads = tape.gradient(loss_value, self.model.model.trainable_weights)
-    self.model.model.optimizer.apply_gradients(zip(grads, self.model.model.trainable_weights))
+        with tf.GradientTape(persistent=True) as tape:
+            prediction = self.model.model(self.x_train, training=False)
+            loss_value = self.model.model.loss(expected, prediction)
 
-    self.contract.confirm_backpropagation()
+        grads = tape.gradient(loss_value, self.model.model.trainable_weights)
+        self.model.model.optimizer.apply_gradients(
+            zip(grads, self.model.model.trainable_weights)
+        )
 
-    if self.logger is not None:
-      self.logger.info(json.dumps({ 'event': 'backward_end', 'round': round, 'output_grads_id': output_grads_id, 'ts': time.time_ns() }))
+        self.contract.confirm_backpropagation()
 
-  # Private utilities
-  def __register(self):
-    if self.logger is not None:
-      self.logger.info(json.dumps({ 'event': 'checking_registration', 'ts': time.time_ns() }))
+        if self.logger is not None:
+            self.logger.info(
+                json.dumps(
+                    {
+                        "event": "backward_end",
+                        "round": round,
+                        "output_grads_id": output_grads_id,
+                        "ts": time.time_ns(),
+                    }
+                )
+            )
 
-    self.contract.register_as_trainer()
+    # Private utilities
+    def __register(self):
+        if self.logger is not None:
+            self.logger.info(
+                json.dumps({"event": "checking_registration", "ts": time.time_ns()})
+            )
 
-    if self.logger is not None:
-      self.logger.info(json.dumps({ 'event': 'registration_checked', 'ts': time.time_ns() }))
+        self.contract.register_as_trainer()
+
+        if self.logger is not None:
+            self.logger.info(
+                json.dumps({"event": "registration_checked", "ts": time.time_ns()})
+            )

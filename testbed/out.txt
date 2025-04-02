@@ -1,0 +1,135 @@
+
+Compiling your contracts...
+===========================
+> Everything is up to date, there is nothing to compile.
+
+
+Starting migrations...
+======================
+> Network name:    'development'
+> Network id:      171703
+> Block gas limit: 8000000 (0x7a1200)
+
+
+1_initial_migration.js
+======================
+
+   Replacing 'Migrations'
+   ----------------------
+   > transaction hash:    0xde3f84bc4b91ead94d9cf1f3a3099afc3d69b837427d486ea0b78a6c2eb73c72
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xbf069b3820B067f10D1eB7CCB9aB2C68624ED821
+   > block number:        3639
+   > block timestamp:     1743397304
+   > account:             0x963DD7b6cae58B1f7EFD3Ef7F4b405Bb2FB1D7F5
+   > balance:             999.982488182
+   > gas used:            290518 (0x46ed6)
+   > gas price:           1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.000290518 ETH
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:         0.000290518 ETH
+
+
+2_no_scoring.js
+===============
+
+   Replacing 'NoScore'
+   -------------------
+   > transaction hash:    0x01056735328769ae99607775ec4f44ee6e404e33ac7f37a449f86797822056e8
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x654195251857AEaa03368Dee32ec890f726a4236
+   > block number:        3644
+   > block timestamp:     1743397309
+   > account:             0x963DD7b6cae58B1f7EFD3Ef7F4b405Bb2FB1D7F5
+   > balance:             999.978861399
+   > gas used:            3584610 (0x36b262)
+   > gas price:           1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00358461 ETH
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.00358461 ETH
+
+
+3_first_come_first_served.js
+============================
+
+   Replacing 'FirstComeFirstServed'
+   --------------------------------
+   > transaction hash:    0x72b5c98a23d157be6ef3532635990102048c72e3aa86f0d6c50c2e9d0c49324a
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x782705D9E6801439F827a112BDf0722313D5Ffa0
+   > block number:        3648
+   > block timestamp:     1743397313
+   > account:             0x963DD7b6cae58B1f7EFD3Ef7F4b405Bb2FB1D7F5
+   > balance:             999.975124038
+   > gas used:            3710188 (0x389cec)
+   > gas price:           1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.003710188 ETH
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:         0.003710188 ETH
+
+
+4_scoring.js
+============
+
+   Replacing 'Score'
+   -----------------
+   > transaction hash:    0x66e2ed3316d279d056c955713449cc7931cf00f709ac54e9a834c03b4d3318c2
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x16d7Ec4cFb912806F69198A3382517A849E0e1B8
+   > block number:        3652
+   > block timestamp:     1743397317
+   > account:             0x963DD7b6cae58B1f7EFD3Ef7F4b405Bb2FB1D7F5
+   > balance:             999.969992458
+   > gas used:            5104407 (0x4de317)
+   > gas price:           1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.005104407 ETH
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:         0.005104407 ETH
+
+
+5_vertical.js
+=============
+
+   Replacing 'Vertical'
+   --------------------
+   > transaction hash:    0xc96a46472554f4de621cf5f891a2cfcef95e3891eb0478f4ec3e2142cd2dfb5f
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xe40166A339320901596a2255dA98C37e7269d585
+   > block number:        3656
+   > block timestamp:     1743397321
+   > account:             0x963DD7b6cae58B1f7EFD3Ef7F4b405Bb2FB1D7F5
+   > balance:             999.965584573
+   > gas used:            4380712 (0x42d828)
+   > gas price:           1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.004380712 ETH
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:         0.004380712 ETH
+
+Summary
+=======
+> Total deployments:   5
+> Final cost:          0.017070435 ETH
+
+
+{'jsonrpc': '2.0', 'id': 1, 'result': True}
+Account successfully unlocked.
