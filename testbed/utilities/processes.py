@@ -8,6 +8,8 @@ def run_and_output(command):
 
     if p_status != 0:
         print(stderr)
+        print(f"Command {command} failed with exit code {p_status}")
+        print(stdout)
         exit(p_status)
 
     return stdout.decode()

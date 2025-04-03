@@ -5,16 +5,16 @@ From: pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
     BLOCKLEARNING_PATH="/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning"
 
 %files
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/ethereum/datadir/accounts.json" /accounts.json
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/run_server.py" /run_server.py
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/docker/run_server.sh" /run_server.sh
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/run_client.py" /run_client.py
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/docker/run_client.sh" /run_client.sh
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/run_vertical_server.py" /run_vertical_server.py
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/docker/run_vertical_server.sh" /run_vertical_server.sh
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/run_vertical_client.py" /run_vertical_client.py
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/docker/run_vertical_client.sh" /run_vertical_client.sh
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/blocklearning" /blocklearning
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/ethereum/datadir/accounts.json" /accounts.json
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/run_server.py" /run_server.py
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/docker/run_server.sh" /run_server.sh
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/run_client.py" /run_client.py
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/docker/run_client.sh" /run_client.sh
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/run_vertical_server.py" /run_vertical_server.py
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/docker/run_vertical_server.sh" /run_vertical_server.sh
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/run_vertical_client.py" /run_vertical_client.py
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/docker/run_vertical_client.sh" /run_vertical_client.sh
+    "/project/6085367/sendena/blocklearning/blocklearning/blocklearning" /blocklearning
 
 %post
     # Update and install required packages

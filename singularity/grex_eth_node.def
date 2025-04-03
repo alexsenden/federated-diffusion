@@ -6,10 +6,10 @@ From: ethereum/client-go:v1.10.16
 
 %files
     # General
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/docker/eth_run_miner.sh" /run_miner.sh
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/docker/eth_run_owner.sh" /run_owner.sh
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/ethereum/datadir/accounts.json" /
-    "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/ethereum/datadir/genesis_pow.json" /genesis.json
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/docker/eth_run_miner.sh" /run_miner.sh
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/docker/eth_run_owner.sh" /run_owner.sh
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/ethereum/datadir/accounts.json" /
+    "/project/6085367/sendena/blocklearning/blocklearning/testbed/ethereum/datadir/genesis_pow.json" /genesis.json
 
     # Owner
     # "/home/alexsenden/ml/blockchain-diffusion/blockchain/blocklearning/testbed/ethereum/datadir/keystore" /.ethereum-owner/keystore

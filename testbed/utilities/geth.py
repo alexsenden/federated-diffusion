@@ -4,7 +4,7 @@ import string
 import random
 import tempfile
 from eth_account import Account
-from .json import *
+from .json_utils import *
 from .processes import *
 
 default_datadir = "./ethereum/datadir"
@@ -57,13 +57,17 @@ def get_random_string(length):
 
 
 def generate_account(password, data_dir):
+    print("Generating individual account")
     with tempfile.NamedTemporaryFile() as fp:
+        print(fp.name)
         fp.write(password.encode())
         fp.seek(0)
 
         out = run_and_output(
             f"geth --datadir {data_dir} account new --password {fp.name}"
         )
+        
+        print(f"Generated - {out}")
         return out.split("Public address of the key:")[1].split("\n")[0].strip()
 
 
@@ -82,6 +86,7 @@ def generate_keys(nodekey, host, data_dir):
 
 
 def generate_accounts(miners, clients, data_dir, password_length):
+    print(f'Generating accounts')
     accounts = {"owner": {}, "miners": {}, "trainers": {}}
 
     static_nodes = []
@@ -97,6 +102,7 @@ def generate_accounts(miners, clients, data_dir, password_length):
     static_nodes.append(enode)
 
     for i in range(0, miners):
+        print(f'Generating miner account {i}')
         password = get_random_string(password_length)
         address = generate_account(password, data_dir)
         accounts["miners"][address] = password
@@ -106,12 +112,14 @@ def generate_accounts(miners, clients, data_dir, password_length):
         miner_addresses.append(address)
 
     for i in range(0, clients):
+        print(f'Generating client account {i}')
         password = get_random_string(password_length)
         address = generate_account(password, data_dir)
         accounts["trainers"][address] = password
 
     static_nodes[0] = static_nodes[0].replace("eth-owner", "127.0.0.1")
 
+    print(f'Preparing to save')
     save_json(os.path.join(data_dir, "accounts.json"), accounts)
     save_json(os.path.join(data_dir, "miners.json"), miner_addresses)
     save_json(os.path.join(data_dir, "geth", "static-nodes.json"), static_nodes)

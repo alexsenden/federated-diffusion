@@ -23,7 +23,7 @@ from blocklearning.contract import RoundPhase
 )
 @click.option("--passphrase", help="passphrase to unlock account", required=True)
 @click.option("--contract", help="contract address", required=True)
-@click.option("--log", help="logging file", required=True)
+@click.option("--log", default="/writable/log.log", help="logging file")
 @click.option("--scoring", default=None, help="scoring method")
 @click.option("--partition", default=None, help="dataset partition number of this node")
 def main(provider, ipfs, abi, account, passphrase, contract, log, scoring, partition):
@@ -31,9 +31,10 @@ def main(provider, ipfs, abi, account, passphrase, contract, log, scoring, parti
     weights_loader = weights_loaders.IpfsWeightsLoader(ipfs)
 
     # Load Training and Testing Data
-    trainloader, testloader = model_loaders.diffusion.load_data.load_dataset(partition)
+    trainloader, testloader = model_loaders.diffusion.load_data.prep_data(partition)
 
     # Get Contract and Register as Trainer
+    print(f"Contract addr: {contract}")
     contract = blocklearning.Contract(log, provider, abi, account, passphrase, contract)
 
     # Load Model

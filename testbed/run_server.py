@@ -24,10 +24,9 @@ from blocklearning.contract import RoundPhase
 )
 @click.option("--passphrase", help="passphrase to unlock account", required=True)
 @click.option("--contract", help="contract address", required=True)
-@click.option("--log", help="logging file", required=True)
-@click.option("--val", help="validation data .npz file", required=True)
+@click.option("--log", default="/writable/log.log", help="logging file")
 @click.option("--scoring", default=None, help="scoring method")
-def main(provider, ipfs, abi, account, passphrase, contract, log, val, scoring):
+def main(provider, ipfs, abi, account, passphrase, contract, log, scoring):
     log = utilities.setup_logger(log, "server")
     contract = blocklearning.Contract(log, provider, abi, account, passphrase, contract)
     weights_loader = weights_loaders.IpfsWeightsLoader(ipfs)

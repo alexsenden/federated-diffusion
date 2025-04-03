@@ -1,8 +1,12 @@
 import json
 import time
+import torch
 
 from .utilities import float_to_int
+from .model_loaders.diffusion.net import unwrap_net
 from .model_loaders.diffusion.diffusion_model import LOCAL_STEPS
+
+SAVE_DIR = '/writable'
 
 
 class Trainer:
@@ -33,6 +37,9 @@ class Trainer:
         if weights_id != "":
             weights = self.weights_loader.load(weights_id)
             self.model.set_weights(weights)
+            
+            if round % 10 == 1 or round == 2:
+                torch.save(self.model.get_unet().state_dict(), f"{SAVE_DIR}/model_round_{round}.pth")
 
         if self.logger is not None:
             self.logger.info(
@@ -41,15 +48,13 @@ class Trainer:
                 )
             )
 
-        history = self.model.train(self.trainloader)
+        trainingAccuracy = float_to_int((1 / self.model.train(self.trainloader)) * 10000)
+        validationAccuracy = float_to_int((1 / self.model.test(self.testloader)) * 10000)
 
         if self.logger is not None:
             self.logger.info(
                 json.dumps({"event": "train_end", "round": round, "ts": time.time_ns()})
             )
-
-        trainingAccuracy = float_to_int(history["sparse_categorical_accuracy"][0])
-        validationAccuracy = float_to_int(history["val_sparse_categorical_accuracy"][0])
 
         weights = self.model.get_weights()
 

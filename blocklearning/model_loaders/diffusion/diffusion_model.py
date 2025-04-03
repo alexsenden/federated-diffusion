@@ -18,26 +18,30 @@ MODEL_NAME = "stable-diffusion-v1-5/stable-diffusion-v1-5"
 
 GRADIENT_ACCUMULATION_STEPS = 4
 
-fds = None
+
+def net_get_weights(net):
+    unet, text_encoder, vae, noise_scheduler = unwrap_net(net)
+    return [val.cpu().numpy() for _, val in unet.state_dict().items()]
 
 
 class DiffusionModel(Model):
     def __init__(self, model):
         self.model = model
         self.layers, self.count = self.__get_layer_info(model)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    def __get_layer_info(model):
+    def __get_layer_info(self, model):
         layers = []
         total = 0
-        for layer in model.get_weights():
+        for layer in net_get_weights(model):
             shape = layer.shape
             weights = np.prod(shape)
             total += weights
             layers.append((shape, weights))
         return layers, total
 
-    def train(self, net, trainloader, device):
-        unet, text_encoder, vae, noise_scheduler = unwrap_net(net)
+    def train(self, trainloader):
+        unet, text_encoder, vae, noise_scheduler = unwrap_net(self.model)
 
         # Initialize the optimizer
         optimizer = AdamW(unet.parameters(), lr=LR)
@@ -50,23 +54,28 @@ class DiffusionModel(Model):
         num_epochs = (LOCAL_STEPS // len(trainloader)) + 1
         local_step = 0
 
+        total_loss = 0
+
         for epoch in range(num_epochs):
             for batch in trainloader:
                 local_step += 1
 
                 # Convert images to latent space
                 latents = vae.encode(
-                    batch["pixel_values"].to(device, torch.float16)
+                    batch["pixel_values"].to(self.device, torch.float16)
                 ).latent_dist.sample()
                 latents = latents * vae.config.scaling_factor
 
                 # Sample noise that we'll add to the latents
-                noise = torch.randn_like(latents).to(device)
+                noise = torch.randn_like(latents).to(self.device)
 
                 # Sample a random timestep for each image
                 bsz = latents.shape[0]
                 timesteps = torch.randint(
-                    0, noise_scheduler.config.num_train_timesteps, (bsz,), device=device
+                    0,
+                    noise_scheduler.config.num_train_timesteps,
+                    (bsz,),
+                    device=self.device,
                 )
                 timesteps = timesteps.long()
 
@@ -76,7 +85,7 @@ class DiffusionModel(Model):
 
                 # Get the text embedding for conditioning
                 encoder_hidden_states = text_encoder(
-                    batch["input_ids"].to(device), return_dict=False
+                    batch["input_ids"].to(self.device), return_dict=False
                 )[0]
 
                 if noise_scheduler.config.prediction_type == "epsilon":
@@ -86,12 +95,13 @@ class DiffusionModel(Model):
 
                 # Predict the noise residual and compute loss
                 model_pred = unet(
-                    noisy_latents.to(device, torch.float32),
+                    noisy_latents.to(self.device, torch.float32),
                     timesteps,
                     encoder_hidden_states.to(torch.float32),
                     return_dict=False,
                 )[0]
                 loss = F.mse_loss(model_pred.float(), target.float(), reduction="mean")
+                total_loss += loss.item()
 
                 # Backpropagate
                 loss.backward()
@@ -102,7 +112,9 @@ class DiffusionModel(Model):
                 if local_step >= LOCAL_STEPS:
                     break
 
-    def test(self, net, testloader, device):
+        return total_loss / LOCAL_STEPS
+
+    def test(self, net, testloader):
         unet, text_encoder, vae, noise_scheduler = unwrap_net(net)
         unet.eval()
 
@@ -111,17 +123,20 @@ class DiffusionModel(Model):
             for batch in testloader:
                 # Convert images to latent space
                 latents = vae.encode(
-                    batch["pixel_values"].to(device, torch.float16)
+                    batch["pixel_values"].to(self.device, torch.float16)
                 ).latent_dist.sample()
                 latents = latents * vae.config.scaling_factor
 
                 # Sample noise that we'll add to the latents
-                noise = torch.randn_like(latents).to(device)
+                noise = torch.randn_like(latents).to(self.device)
 
                 # Sample a random timestep for each image
                 bsz = latents.shape[0]
                 timesteps = torch.randint(
-                    0, noise_scheduler.config.num_train_timesteps, (bsz,), device=device
+                    0,
+                    noise_scheduler.config.num_train_timesteps,
+                    (bsz,),
+                    device=self.device,
                 )
                 timesteps = timesteps.long()
 
@@ -131,7 +146,7 @@ class DiffusionModel(Model):
 
                 # Get the text embedding for conditioning
                 encoder_hidden_states = text_encoder(
-                    batch["input_ids"].to(device), return_dict=False
+                    batch["input_ids"].to(self.device), return_dict=False
                 )[0]
 
                 if noise_scheduler.config.prediction_type == "epsilon":
@@ -141,7 +156,7 @@ class DiffusionModel(Model):
 
                 # Predict the noise residual and compute loss
                 model_pred = unet(
-                    noisy_latents.to(device, torch.float32),
+                    noisy_latents.to(self.device, torch.float32),
                     timesteps,
                     encoder_hidden_states.to(torch.float32),
                     return_dict=False,
@@ -151,12 +166,16 @@ class DiffusionModel(Model):
 
         return total_loss / len(testloader.dataset)
 
-    def get_weights(self, net):
-        unet, text_encoder, vae, noise_scheduler = unwrap_net(net)
+    def get_unet(self):
+        unet, text_encoder, vae, noise_scheduler = unwrap_net(self.model)
+        return unet
+
+    def get_weights(self):
+        unet, text_encoder, vae, noise_scheduler = unwrap_net(self.model)
         return [val.cpu().numpy() for _, val in unet.state_dict().items()]
 
-    def set_weights(self, net, parameters):
-        unet, text_encoder, vae, noise_scheduler = unwrap_net(net)
+    def set_weights(self, parameters):
+        unet, text_encoder, vae, noise_scheduler = unwrap_net(self.model)
         params_dict = zip(unet.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         unet.load_state_dict(state_dict, strict=True)

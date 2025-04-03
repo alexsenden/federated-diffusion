@@ -13,10 +13,10 @@
 
 set -x
 
-for i in $(seq $NUM_SERVERS); do
+for ((i=0;i<SERVERS;i++)); do
     bash run_server_instance.sh $i
 done
 
-for i in $(seq $NUM_CLIENTS); do
+for ((i=0;i<CLIENTS;i++)); do
     bash run_client_instance.sh $i
 done

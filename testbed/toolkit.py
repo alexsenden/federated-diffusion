@@ -6,7 +6,7 @@ from web3 import Web3
 
 import utilities.processes as proc
 import utilities.geth as geth
-import utilities.json as ujson
+import utilities.json_utils as ujson
 import utilities.singularity as singularity
 from utilities.unlock_account import unlock_account
 
@@ -103,10 +103,13 @@ def update_genesis(genesis, balance, data_dir):
     help="password length",
 )
 def generate_accounts(miners, trainers, data_dir, password_length):
+    print(f'Generating accounts to {data_dir}')
     shutil.rmtree(data_dir, ignore_errors=True)
+    print(f'Datadir removed')
     geth.generate_accounts(
         miners, trainers, data_dir=data_dir, password_length=password_length
     )
+    print(f'generate_accounts - done')
 
 
 @cli.command()
@@ -119,7 +122,10 @@ def generate_accounts(miners, trainers, data_dir, password_length):
 @click.option(
     "-p", "--provider", default="http://127.0.0.1:8545", help="ethereum API provider"
 )
-def deploy_contract(data_dir, provider):
+@click.option(
+    "-t", "--trufflepath", default="~/bin/.npm-packages/node_modules/.bin/truffle", help="path to truffle executable (can replace with truffle if on path)"
+)
+def deploy_contract(data_dir, provider, trufflepath):
     accounts = ujson.read_json(os.path.join(data_dir, "accounts.json"))
     account_address = list(accounts["owner"].keys())[0]
     account_password = accounts["owner"][account_address]
@@ -130,7 +136,7 @@ def deploy_contract(data_dir, provider):
 
     unlock_account(address, account_password)
 
-    os.system("cd .. && truffle migrate --reset")
+    os.system(f"cd .. && {trufflepath} migrate --reset")
 
 
 @cli.command()

@@ -1,19 +1,24 @@
 import json
 import time
+
 from enum import Enum
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
+
+from blocklearning.utilities.unlock_account import unlock_account
+# from web3.middleware import geth_poa_middleware
 
 
 def get_web3(provider, abi_file, account, passphrase, contract):
-    provider = Web3.HTTPProvider(provider)
+    web3_provider = Web3.HTTPProvider(provider)
     abi = get_abi(abi_file)
 
-    web3 = Web3(provider)
-    web3.middleware_onion.inject(geth_poa_middleware, layer=0)
-    web3.geth.personal.unlock_account(account, passphrase, 600)
+    web3 = Web3(web3_provider)
+    # web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    unlock_account(account, passphrase, provider)
 
+    print(f"Getting contract {contract}")
     contract = web3.eth.contract(address=contract, abi=abi)
+    print(contract)
     defaultOpts = {"from": account}
 
     return (web3, contract, defaultOpts)
@@ -45,6 +50,7 @@ class Contract:
         self.web3 = web3
         self.contract = contract
         self.default_opts = default_opts
+        self.provider = provider
 
     def get_model(self):
         return self.contract.functions.model().call(self.default_opts)
@@ -189,4 +195,4 @@ class Contract:
         return receipt
 
     def __unlock_account(self):
-        self.web3.geth.personal.unlock_account(self.account, self.passphrase, 600)
+        unlock_account(self.account, self.passphrase, self.provider)

@@ -10,6 +10,8 @@ from .diffusion_model import MODEL_NAME
 
 DATASET_NAME = "alexsenden/cottonweedid15_partitioned"
 
+fds = None
+
 
 def load_partition(dataset, partition_id):
     return dataset.filter(lambda datum: str(datum["partition"]) == str(partition_id))
