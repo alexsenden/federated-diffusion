@@ -25,10 +25,12 @@ def net_get_weights(net):
 
 
 class DiffusionModel(Model):
-    def __init__(self, model):
+    def __init__(self, model, partition):
         self.model = model
         self.layers, self.count = self.__get_layer_info(model)
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(f"cuda" if torch.cuda.is_available() else "cpu")
+        
+        print(f"Device used: {self.device}")
 
     def __get_layer_info(self, model):
         layers = []
@@ -39,6 +41,17 @@ class DiffusionModel(Model):
             total += weights
             layers.append((shape, weights))
         return layers, total
+    
+    def to_device_and_dtype(self):
+        unet, text_encoder, vae, noise_scheduler = unwrap_net(self.model)
+        
+        # Move text_encoder and VAE to GPU and cast to float16 - these are only used for inference
+        text_encoder.to(self.device, dtype=torch.float16)
+        vae.to(self.device, dtype=torch.float16)
+
+        # Move unet to GPU
+        unet.to(self.device)
+        
 
     def train(self, trainloader):
         unet, text_encoder, vae, noise_scheduler = unwrap_net(self.model)
@@ -114,8 +127,8 @@ class DiffusionModel(Model):
 
         return total_loss / LOCAL_STEPS
 
-    def test(self, net, testloader):
-        unet, text_encoder, vae, noise_scheduler = unwrap_net(net)
+    def test(self, testloader):
+        unet, text_encoder, vae, noise_scheduler = unwrap_net(self.model)
         unet.eval()
 
         total_loss = 0

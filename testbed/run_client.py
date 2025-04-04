@@ -2,11 +2,14 @@ import web3
 import time
 import click
 import requests
+import json
+
 import blocklearning
 import blocklearning.scorers as scorers
 import blocklearning.model_loaders as model_loaders
 import blocklearning.weights_loaders as weights_loaders
 import blocklearning.utilities as utilities
+
 from blocklearning.contract import RoundPhase
 
 
@@ -27,24 +30,21 @@ from blocklearning.contract import RoundPhase
 @click.option("--scoring", default=None, help="scoring method")
 @click.option("--partition", default=None, help="dataset partition number of this node")
 def main(provider, ipfs, abi, account, passphrase, contract, log, scoring, partition):
-    log = utilities.setup_logger(log, "client")
+    log = utilities.setup_logger(log, f"client-{partition}")
     weights_loader = weights_loaders.IpfsWeightsLoader(ipfs)
 
     # Load Training and Testing Data
     trainloader, testloader = model_loaders.diffusion.load_data.prep_data(partition)
 
     # Get Contract and Register as Trainer
-    print(f"Contract addr: {contract}")
     contract = blocklearning.Contract(log, provider, abi, account, passphrase, contract)
 
-    print(f"Creating model loader - {partition}")
     # Load Model
     model_loader = model_loaders.IpfsModelLoader(
-        contract, weights_loader, ipfs_api=ipfs
+        contract, weights_loader, ipfs_api=ipfs, partition=partition
     )
-    print(f"Model loader created - {partition}")
     model = model_loader.load()
-    print(f"Model loaded - {partition}")
+    model.to_device_and_dtype()
 
     trainer = blocklearning.Trainer(
         contract, weights_loader, model, (trainloader, testloader), logger=log, partition=partition
@@ -63,6 +63,13 @@ def main(provider, ipfs, abi, account, passphrase, contract, log, scoring, parti
         )
     if scorer is not None:
         scorer = blocklearning.Scorer(contract, scorer=scorer, logger=log)
+        
+    if log is not None:
+            log.info(
+                json.dumps(
+                    {"event": "client_setup_complete", "ts": time.time_ns()}
+                )
+            )
 
     while True:
         try:
@@ -72,7 +79,8 @@ def main(provider, ipfs, abi, account, passphrase, contract, log, scoring, parti
             elif phase == RoundPhase.WAITING_FOR_SCORES and scorer is not None:
                 scorer.score()
         except web3.exceptions.ContractLogicError as err:
-            print(err, flush=True)
+            pass
+            # print(err, flush=True)
         except requests.exceptions.ReadTimeout as err:
             print(err, flush=True)
 

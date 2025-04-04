@@ -64,7 +64,7 @@ cd ../singularity
 bash run_py_nodes.sh
 
 # Allow all other processes to warm up
-sleep 30s
+sleep 60s
 
 echo "******************************Beginning Training******************************"
 # Begin training

@@ -19,9 +19,15 @@ class Trainer:
         self.model = model
         self.partition = partition
         self.__register()
+        self.last_round = -1
 
     def train(self):
         (round, weights_id) = self.contract.get_training_round()
+        
+        # Prevent trainer from training multiple times per round
+        if round <= self.last_round:
+            return
+        self.last_round = round
 
         if self.logger is not None:
             self.logger.info(
@@ -39,8 +45,8 @@ class Trainer:
             weights = self.weights_loader.load(weights_id)
             self.model.set_weights(weights)
             
-            if (round % 10 == 1 or round == 2) and self.partition == 0:
-                torch.save(self.model.get_unet().state_dict(), f"{SAVE_DIR}/model_round_{round}.pth")
+            # if (round % 10 == 1 or round == 2) and self.partition == 0:
+            #     torch.save(self.model.get_unet().state_dict(), f"{SAVE_DIR}/model_round_{round}.pth")
 
         if self.logger is not None:
             self.logger.info(

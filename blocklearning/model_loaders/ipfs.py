@@ -4,11 +4,12 @@ from .diffusion.diffusion_model import DiffusionModel, MODEL_NAME
 
 class IpfsModelLoader:
     def __init__(
-        self, contract, weights_loader, ipfs_api="/ip4/127.0.0.1/tcp/5001"
+        self, contract, weights_loader, ipfs_api="/ip4/127.0.0.1/tcp/5001", partition=0
     ) -> None:
         self.contract = contract
         self.weights_loader = weights_loader
         self.ipfs_api = ipfs_api
+        self.partition = partition
         pass
 
     def __load(self, weights_cid=""):
@@ -23,7 +24,7 @@ class IpfsModelLoader:
             weights = self.weights_loader.load(weights_cid)
             model.set_weights(weights)
 
-        return DiffusionModel(model)
+        return DiffusionModel(model, self.partition)
 
     def load(self):
         # model_cid = self.contract.get_model()

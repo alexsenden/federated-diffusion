@@ -16,7 +16,8 @@ python /run_server.py \
     --passphrase=$PASSWORD \
     --contract=$CONTRACT \
     --log=/writable/log.log \
-    --scoring=$SCORING &
+    --scoring=$SCORING \
+    --partition=$index &
 
 
 # Use the following flag for a private dataset

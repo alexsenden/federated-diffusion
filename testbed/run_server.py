@@ -2,12 +2,15 @@ import web3
 import time
 import click
 import requests
+import json
+
 import blocklearning
 import blocklearning.scorers as scorers
 import blocklearning.aggregators as aggregators
 import blocklearning.model_loaders as model_loaders
 import blocklearning.weights_loaders as weights_loaders
 import blocklearning.utilities as utilities
+
 from blocklearning.contract import RoundPhase
 
 
@@ -26,8 +29,9 @@ from blocklearning.contract import RoundPhase
 @click.option("--contract", help="contract address", required=True)
 @click.option("--log", default="/writable/log.log", help="logging file")
 @click.option("--scoring", default=None, help="scoring method")
-def main(provider, ipfs, abi, account, passphrase, contract, log, scoring):
-    log = utilities.setup_logger(log, "server")
+@click.option("--partition", default=None, help="dataset partition number of this node")
+def main(provider, ipfs, abi, account, passphrase, contract, log, scoring, partition):
+    log = utilities.setup_logger(log, f"server-{partition}")
     contract = blocklearning.Contract(log, provider, abi, account, passphrase, contract)
     weights_loader = weights_loaders.IpfsWeightsLoader(ipfs)
 
@@ -53,6 +57,7 @@ def main(provider, ipfs, abi, account, passphrase, contract, log, scoring):
         aggregator,
         with_scores=scoring != "none",
         logger=log,
+        partition=partition
     )
 
     scorer = None
@@ -60,6 +65,13 @@ def main(provider, ipfs, abi, account, passphrase, contract, log, scoring):
         scorer = scorers.MultiKrumScorer(weights_loader)
     if scorer is not None:
         scorer = blocklearning.Scorer(contract, scorer=scorer, logger=log)
+        
+    if log is not None:
+            log.info(
+                json.dumps(
+                    {"event": "server_setup_complete", "ts": time.time_ns()}
+                )
+            )
 
     while True:
         try:
