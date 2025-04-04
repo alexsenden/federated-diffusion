@@ -3,20 +3,21 @@ import time
 import torch
 
 from .utilities import float_to_int
-from .model_loaders.diffusion.net import unwrap_net
 from .model_loaders.diffusion.diffusion_model import LOCAL_STEPS
 
 SAVE_DIR = '/writable'
 
 
 class Trainer:
-    def __init__(self, contract, weights_loader, model, data, logger=None, priv=None):
+    def __init__(self, contract, weights_loader, model, data, logger=None, priv=None, partition=1):
+        print(f"Initializing trainer {partition}")
         self.logger = logger
         self.priv = priv
         self.weights_loader = weights_loader
         self.contract = contract
         (self.trainloader, self.testloader) = data
         self.model = model
+        self.partition = partition
         self.__register()
 
     def train(self):
@@ -38,7 +39,7 @@ class Trainer:
             weights = self.weights_loader.load(weights_id)
             self.model.set_weights(weights)
             
-            if round % 10 == 1 or round == 2:
+            if (round % 10 == 1 or round == 2) and self.partition == 0:
                 torch.save(self.model.get_unet().state_dict(), f"{SAVE_DIR}/model_round_{round}.pth")
 
         if self.logger is not None:
@@ -48,7 +49,10 @@ class Trainer:
                 )
             )
 
+        print(f"Trainer {self.partition} starting training for round {round}")
         trainingAccuracy = float_to_int((1 / self.model.train(self.trainloader)) * 10000)
+        
+        print(f"Trainer {self.partition} starting validation for round {round}")
         validationAccuracy = float_to_int((1 / self.model.test(self.testloader)) * 10000)
 
         if self.logger is not None:
@@ -83,6 +87,7 @@ class Trainer:
 
     # Private utilities
     def __register(self):
+        print(f"__register -ing trainer {self.partition}")
         if self.logger is not None:
             self.logger.info(
                 json.dumps({"event": "checking_registration", "ts": time.time_ns()})

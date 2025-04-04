@@ -21,9 +21,12 @@ NUM_TRAINERS_PER_ROUND = 4
 # Setup Log
 log_file = "../../blocklearning-results/results/CURRENT/logs/manager.log"
 os.makedirs(os.path.dirname(log_file), exist_ok=True)
-if os.path.exists(log_file):
-    print("a log already exists, please make sure to save the previous logs")
-    exit(1)
+
+
+while os.path.exists(log_file):
+    log_file = log_file.replace(".log", "_1.log")
+    print(f"a log already exists, saving to {log_file}")
+
 
 logging.basicConfig(
     level="INFO",
@@ -62,22 +65,30 @@ def get_owner_account(data_dir):
 )
 @click.option("--rounds", default=1, type=click.INT, help="number of rounds")
 def main(provider, abi, contract, scoring, trainers, data_dir, val, rounds):
+    print("Preparing to start training")
     account_address, account_password = get_owner_account(data_dir)
+    print(f"Account retrieved address: {account_address}")
     contract = blocklearning.Contract(
         log, provider, abi, account_address, account_password, contract
     )
+    print(f"Contract instatiated")
     # weights_loader = weights_loaders.IpfsWeightsLoader()
     # model_loader = model_loaders.IpfsModelLoader(contract, weights_loader)
     # model = model_loader.load()
     # x_val, y_val = butilities.numpy_load(val)
 
     def choose_participants():
+        print("Choosing participants")
         all_trainers = contract.get_trainers()
         all_aggregators = contract.get_aggregators()
 
         round_trainers = None
         round_aggregators = all_aggregators
         round_scorers = None
+        
+        print(f"All trainers: {all_trainers}")
+        print(f"Number of trainers: {len(all_trainers)}")
+        print(f"Number of trainers per round: {NUM_TRAINERS_PER_ROUND}")
 
         if trainers == "random":
             round_trainers = random.sample(all_trainers, NUM_TRAINERS_PER_ROUND)
@@ -91,6 +102,8 @@ def main(provider, abi, contract, scoring, trainers, data_dir, val, rounds):
         elif scoring == "blockflow" or scoring == "marginal-gain":
             round_scorers = round_trainers
 
+        print("Participants chosen")
+
         return round_trainers, round_aggregators, round_scorers
 
     # def eval_model(weights):
@@ -103,6 +116,9 @@ def main(provider, abi, contract, scoring, trainers, data_dir, val, rounds):
 
     for i in range(0, rounds):
         round_trainers, round_aggregators, round_scorers = choose_participants()
+        print(
+            f"********************************\nRound {i} - Trainers: {round_trainers}, Aggregators: {round_aggregators}\n********************************\n"
+        )
         log.info(
             json.dumps(
                 {

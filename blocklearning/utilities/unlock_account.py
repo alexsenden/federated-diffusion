@@ -22,8 +22,8 @@ def unlock_account(address, account_password, provider="http://localhost:8545"):
     # Parse the response
     result = response.json()
 
-    print(result)
+    # print(result)
     if "error" in result:
         print(f"Error unlocking account: {result['error']['message']}")
-    else:
-        print("Account successfully unlocked.")
+    # else:
+        # print("Account successfully unlocked.")

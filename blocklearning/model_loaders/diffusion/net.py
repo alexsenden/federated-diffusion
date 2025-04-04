@@ -17,10 +17,10 @@ def wrap_net(unet, text_encoder, vae, noise_scheduler):
 
 def init_net(model_name):
     # Load the pretrained components of the diffusion model
-    noise_scheduler = DDPMScheduler.from_pretrained(model_name, subfolder="scheduler")
-    text_encoder = CLIPTextModel.from_pretrained(model_name, subfolder="text_encoder")
-    vae = AutoencoderKL.from_pretrained(model_name, subfolder="vae")
-    unet = UNet2DConditionModel.from_pretrained(model_name, subfolder="unet")
+    noise_scheduler = DDPMScheduler.from_pretrained("/model/scheduler")
+    text_encoder = CLIPTextModel.from_pretrained("/model/text_encoder")
+    vae = AutoencoderKL.from_pretrained("/model/vae")
+    unet = UNet2DConditionModel.from_pretrained("/model/unet")
 
     unet.enable_gradient_checkpointing()
 

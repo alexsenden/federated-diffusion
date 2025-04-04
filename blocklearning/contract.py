@@ -3,9 +3,24 @@ import time
 
 from enum import Enum
 from web3 import Web3
+from hexbytes import HexBytes
+from web3.datastructures import AttributeDict
 
 from blocklearning.utilities.unlock_account import unlock_account
 # from web3.middleware import geth_poa_middleware
+
+def serialize_with_hexbytes(obj) -> str:
+    def convert(obj):
+        if isinstance(obj, HexBytes):
+            return obj.hex()
+        elif isinstance(obj, dict) or isinstance(obj, AttributeDict):
+            return {k: convert(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert(i) for i in obj]
+        return obj
+
+    serializable_obj = convert(obj)
+    return json.dumps(serializable_obj)
 
 
 def get_web3(provider, abi_file, account, passphrase, contract):
@@ -16,9 +31,9 @@ def get_web3(provider, abi_file, account, passphrase, contract):
     # web3.middleware_onion.inject(geth_poa_middleware, layer=0)
     unlock_account(account, passphrase, provider)
 
-    print(f"Getting contract {contract}")
+    # print(f"Getting contract {contract}")
     contract = web3.eth.contract(address=contract, abi=abi)
-    print(contract)
+    # print(contract)
     defaultOpts = {"from": account}
 
     return (web3, contract, defaultOpts)
@@ -71,7 +86,11 @@ class Contract:
         return RoundPhase(self.contract.functions.roundPhase().call(self.default_opts))
 
     def get_trainers(self):
-        return self.contract.functions.getTrainers().call(self.default_opts)
+        res = self.contract.functions.getTrainers().call(self.default_opts)
+        self.log.info(
+            json.dumps({"event": "get_trainers", "res": res, "ts": time.time_ns()})
+        )
+        return res
 
     def get_aggregators(self):
         return self.contract.functions.getAggregators().call(self.default_opts)
@@ -108,9 +127,11 @@ class Contract:
 
     def register_as_trainer(self):
         self.__unlock_account()
+        print(f"Preparing to register: {self.account}")
         if not self.contract.functions.registeredTrainers(self.account).call(
             self.default_opts
         ):
+            print(f"Registering as trainer: {self.account}")
             tx = self.contract.functions.registerTrainer().transact(self.default_opts)
             return tx, self.__wait_tx(tx)
 
@@ -183,12 +204,14 @@ class Contract:
         )
         receipt = self.web3.eth.wait_for_transaction_receipt(tx)
         self.log.info(
-            json.dumps(
+            serialize_with_hexbytes(
                 {
                     "event": "tx_end",
                     "tx": tx.hex(),
                     "gas": receipt.gasUsed,
                     "ts": time.time_ns(),
+                    "full_tx": tx,
+                    "receipt": receipt,
                 }
             )
         )

@@ -37,14 +37,17 @@ def main(provider, ipfs, abi, account, passphrase, contract, log, scoring, parti
     print(f"Contract addr: {contract}")
     contract = blocklearning.Contract(log, provider, abi, account, passphrase, contract)
 
+    print(f"Creating model loader - {partition}")
     # Load Model
     model_loader = model_loaders.IpfsModelLoader(
         contract, weights_loader, ipfs_api=ipfs
     )
+    print(f"Model loader created - {partition}")
     model = model_loader.load()
+    print(f"Model loaded - {partition}")
 
     trainer = blocklearning.Trainer(
-        contract, weights_loader, model, (trainloader, testloader), logger=log
+        contract, weights_loader, model, (trainloader, testloader), logger=log, partition=partition
     )
 
     # Setup the scorer for the clients. Only Marginal Gain and BlockFlow run on the client

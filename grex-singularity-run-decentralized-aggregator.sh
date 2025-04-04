@@ -30,6 +30,10 @@ singularity instance stop --all
 
 cd testbed
 
+if [ ! -d ../sd1.5 ]; then
+    python save_model.py
+fi
+
 if [ $BUILD_IMAGES -eq 1 ]
 then
     # Generate the eth accounts
@@ -59,8 +63,14 @@ echo $CONTRACT
 cd ../singularity
 bash run_py_nodes.sh
 
+# Allow all other processes to warm up
+sleep 30s
+
+echo "******************************Beginning Training******************************"
 # Begin training
 python3 ../testbed/start_round.py \
     --contract=$CONTRACT \
     --abi=../build/contracts/NoScore.json \
-    --rounds=50
+    --rounds=51 \
+    --data-dir=../testbed/ethereum/datadir
+echo "******************************Completed Training******************************"
