@@ -1,7 +1,22 @@
 # Inference and Evaluation
 
-### Creating Synthetic Datasets
+### Prerequisite:
 
-### Generating Metrics and t-SNE Charts
+Install dependencies:
 
-### Training Downstream Classifiers
+```
+pip install -r requirements.txt
+```
+
+### Creating Synthetic Datasets:
+
+```
+python inference.py --modelPath=<PATH TO .PTH> --outputDir=<OUTPUT_DIR>
+```
+
+### Generating Metrics and t-SNE Charts:
+```
+
+```
+
+### Training Downstream Classifiers:

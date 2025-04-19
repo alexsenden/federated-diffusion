@@ -25,7 +25,7 @@ def get_strategy(context: Context, initial_parameters):
 
     if strategy_name == "FedAvg":
         return SaveModelStrategy(FedAvg(**base_args))
-    elif strategy_name == "QFedAvg": # Broken Implementation
+    elif strategy_name == "QFedAvg":  # Broken Implementation
         return SaveModelStrategy(QFedAvg(**base_args))
     elif strategy_name == "FaultTolerantFedAvg":
         return SaveModelStrategy(FaultTolerantFedAvg(**base_args))

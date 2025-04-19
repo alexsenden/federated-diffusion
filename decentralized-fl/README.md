@@ -1,25 +1,27 @@
 # BlockLearning Framework
 
-This code was used during a thesis in order to compare different aspects of Blockchain-based Federated Learning systems.
+This code is forked from [hacdias/blocklearning](https://github.com/hacdias/blocklearning) at [TU Eindhoven](https://tue.nl/).
+Please additionally cite that work when using this.
 
-> ⚠️ This repository is archived as it is not being actively maintained. However, if you have any interest in maintaining this repository further or you need some help to use it, please [contact me](https://hacdias.com/contact).
-
-## Thesis Publication
-
-- https://research.tue.nl/en/studentTheses/04a5f7e4-7782-4f26-a864-a49d04f82966
-- https://hacdias.com/2022/09/07/thesis-blocklearning-framework
-
-## Structure
+### Structure
 
 - [`blocklearning/`](./blocklearning/) contains the modular Python library.
 - [`contracts/`](./contracts/) contains Solidity smart contracts.
 - [`migrations/`](./migrations/) contains smart contract migrations necessary to deploy the smart contracts using [Truffle](https://trufflesuite.com/).
-- [`testbed/`](./testbed/) is the code necessary to run the framework in an experimental setup using Docker.
+- [`testbed/`](./testbed/) is the code necessary to run the framework in an experimental setup using ~~Docker~~ Singularity.
+- [`singularity/`](./singularity/) contains scripts and container definitions to allow this project to run in Singularity containers (for HPC contexts).
 
-## Instructions
+### Running
 
-Please check the [Testbed's README](./testbed/README.md) for instructions on how to run this project.
+Ensure the following dependencies are installed:
 
-## Disclaimer
+- [`go-ethereum`](https://github.com/ethereum/go-ethereum)
+- [`Singularity`](https://github.com/sylabs/singularity)
+- Truffle (Node module, tested with Node 18), `npm install -g truffle`
+- Python Dependencies `pip install -r ../requirements.txt`
 
-This research project was started at [TU Eindhoven](https://tue.nl/). Please cite this work when using it.
+Then, run the `run-decentralized-fl.sh` script
+
+```
+bash run-decentralized-fl.sh
+```

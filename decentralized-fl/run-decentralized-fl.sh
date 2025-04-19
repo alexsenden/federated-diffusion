@@ -13,19 +13,22 @@
 
 set -x
 
-module load cuda/12.4.1 arch/avx2 gcc/13.2.0 python/3.11.11 singularity/4.2.2 nodejs/18.20.5
+# Load HPC Modules (Enable for HPC usage)
+# module load cuda/12.4.1 arch/avx2 gcc/13.2.0 python/3.11.11 singularity/4.2.2 nodejs/18.20.5
 
-source ~/env/blocklearning/bin/activate
+source <PATH TO VIRTUAL ENVIRONMENT>
 
-# NPM packages in homedir (Truffle)
-export NPM_PACKAGES="~/bin/.npm-packages/node_modules/.bin"
-export PATH="$NPM_PACKAGES:$PATH"
+# NPM packages in homedir (Truffle) (Enable for HPC usage)
+# export NPM_PACKAGES="~/bin/.npm-packages/node_modules/.bin"
+# export PATH="$NPM_PACKAGES:$PATH"
 
 # Set to 1 to build singularity images
 BUILD_IMAGES=0
 
 # Change these variables based on execution env
-export HF_CACHE="../../../hf-cache"
+
+# HF_CACHE Location - Change if non-standard
+# export HF_CACHE="../../../hf-cache"
 
 # Config
 export IPFS_API="/ip4/127.0.0.1/tcp/5001" #"127.0.0.1:5001"
@@ -56,7 +59,7 @@ then
     python3 toolkit.py update-genesis
     export NETWORK_ID=`jq -r '.config.chainId' ethereum/datadir/genesis_pow.json`
 
-    Build the singularity images
+    # Build the singularity images
     python3 toolkit.py build-images
 fi
 

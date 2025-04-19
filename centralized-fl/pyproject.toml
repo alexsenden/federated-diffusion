@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "central-aggregator"
+version = "1.0.0"
+description = ""
+license = "Apache-2.0"
+dependencies = [
+    "flwr[simulation]>=1.16.0",
+    "flwr-datasets>=0.5.0",
+    "torch==2.6.0",
+    "torchvision==0.21.0",
+    "transformers>=4.30.0,<5.0",
+    "datasets>=2.0.0, <3.0",
+    "scikit-learn>=1.6.1, <2.0",
+    "diffusers==0.32.2",
+    "accelerate==1.4.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.flwr.app]
+publisher = "alexsenden"
+
+[tool.flwr.app.components]
+serverapp = "central_aggregator.server_app:app"
+clientapp = "central_aggregator.client_app:app"
+
+[tool.flwr.app.config]
+model-name = "stable-diffusion-v1-5/stable-diffusion-v1-5"
+local-steps = 100
+gradient-accumulation-steps = 4
+resolution = 256
+learning-rate = 0.000001
+
+strategy = "FedAvg"
+
+fraction-fit = 0.5
+num-server-rounds = 50
+
+dp-num-sampled-clients = 4
+dp-noise-multiplier = 1.005
+
+krum-num-server-rounds = 200
+multikrum-num-server-rounds = 100
+
+[tool.flwr.federations]
+default = "localhost-gpu"
+
+[tool.flwr.federations.localhost]
+options.num-supernodes = 8
+
+[tool.flwr.federations.localhost-gpu]
+options.num-supernodes = 8
+options.backend.client-resources.num-cpus = 2 # each ClientApp assumes to use 2CPUs
+options.backend.client-resources.num-gpus = 1 # at most 1 ClientApps will run in a given GPU
+options.backend.init_args.num_cpus = 8 # Only expose 1 CPU to the simulation
+options.backend.init_args.num_gpus = 4 # Expose a single GPU to the simulation
