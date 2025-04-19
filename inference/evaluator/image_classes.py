@@ -1,0 +1,17 @@
+plant_classes = [
+    "Carpetweed",
+    "Crabgrass",
+    "Eclipta",
+    "Goosegrass",
+    "Morningglory",
+    "Nutsedge",
+    "Palmer Amaranth",
+    "Prickly Sida",
+    "Purslane",
+    "Ragweed",
+    "Sicklepod",
+    "Spotted Spurge",
+    "Spurred Anoda",
+    "Swinecress",
+    "Waterhemp",
+]

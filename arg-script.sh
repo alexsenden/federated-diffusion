@@ -1,2 +1,0 @@
-args=($@)
-echo $args
