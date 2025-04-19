@@ -29,7 +29,7 @@ from blocklearning.contract import RoundPhase
 @click.option("--contract", help="contract address", required=True)
 @click.option("--log", default="/writable/log.log", help="logging file")
 @click.option("--scoring", default=None, help="scoring method")
-@click.option("--partition", default=None, help="dataset partition number of this node")
+@click.option("--partition", default=None, help="dataset partition number of this node", type=click.INT)
 def main(provider, ipfs, abi, account, passphrase, contract, log, scoring, partition):
     log = utilities.setup_logger(log, f"server-{partition}")
     contract = blocklearning.Contract(log, provider, abi, account, passphrase, contract)

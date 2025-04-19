@@ -127,11 +127,11 @@ class Contract:
 
     def register_as_trainer(self):
         self.__unlock_account()
-        print(f"Preparing to register: {self.account}")
+        # print(f"Preparing to register: {self.account}")
         if not self.contract.functions.registeredTrainers(self.account).call(
             self.default_opts
         ):
-            print(f"Registering as trainer: {self.account}")
+            # print(f"Registering as trainer: {self.account}")
             tx = self.contract.functions.registerTrainer().transact(self.default_opts)
             return tx, self.__wait_tx(tx)
 
@@ -210,8 +210,8 @@ class Contract:
                     "tx": tx.hex(),
                     "gas": receipt.gasUsed,
                     "ts": time.time_ns(),
-                    "full_tx": tx,
-                    "receipt": receipt,
+                    # "full_tx": tx,
+                    # "receipt": receipt,
                 }
             )
         )

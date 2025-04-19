@@ -78,9 +78,9 @@ class Aggregator:
                         }
                     )
                 )
-            params_dict = zip(self.model.state_dict().keys(), new_weights)
+            params_dict = zip(self.model.get_unet().state_dict().keys(), new_weights)
             state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-            torch.save(state_dict, f"writable/model_round_{round}.pth")
+            torch.save(state_dict, f"/writable/model_round_{round}.pth")
             if self.logger is not None:
                 self.logger.info(
                     json.dumps(

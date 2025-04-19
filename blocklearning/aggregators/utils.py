@@ -1,4 +1,5 @@
 from flwr.server.strategy.fedavg import aggregate
+from flwr.server.strategy.fedmedian import aggregate_median
 
 
 def weighted_fed_avg(submissions, model_size, weights_loader, avg_weights):
@@ -14,4 +15,4 @@ def weighted_fed_avg(submissions, model_size, weights_loader, avg_weights):
         (weights_loader.load(weights_cid), 100)
         for _, _, _, weights_cid in submissions
     ]
-    return aggregate(weights_results)
+    return aggregate_median(weights_results)

@@ -1,3 +1,16 @@
+#!/bin/bash
+
+#SBATCH --ntasks=1
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=28
+#SBATCH --gpus=8
+#SBATCH --mem=512G
+#SBATCH --time=2-00:00
+#SBATCH --partition=livi
+#SBATCH --mail-user=sendena@myumanitoba.ca
+#SBATCH --mail-type=ALL
+
 set -x
 
 module load cuda/12.4.1 arch/avx2 gcc/13.2.0 python/3.11.11 singularity/4.2.2 nodejs/18.20.5

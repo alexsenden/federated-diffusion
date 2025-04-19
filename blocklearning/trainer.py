@@ -10,7 +10,7 @@ SAVE_DIR = '/writable'
 
 class Trainer:
     def __init__(self, contract, weights_loader, model, data, logger=None, priv=None, partition=1):
-        print(f"Initializing trainer {partition}")
+        # print(f"Initializing trainer {partition}")
         self.logger = logger
         self.priv = priv
         self.weights_loader = weights_loader
@@ -55,10 +55,10 @@ class Trainer:
                 )
             )
 
-        print(f"Trainer {self.partition} starting training for round {round}")
+        # print(f"Trainer {self.partition} starting training for round {round}")
         trainingAccuracy = float_to_int((1 / self.model.train(self.trainloader)) * 10000)
         
-        print(f"Trainer {self.partition} starting validation for round {round}")
+        # print(f"Trainer {self.partition} starting validation for round {round}")
         validationAccuracy = float_to_int((1 / self.model.test(self.testloader)) * 10000)
 
         if self.logger is not None:
@@ -93,7 +93,7 @@ class Trainer:
 
     # Private utilities
     def __register(self):
-        print(f"__register -ing trainer {self.partition}")
+        # print(f"__register -ing trainer {self.partition}")
         if self.logger is not None:
             self.logger.info(
                 json.dumps({"event": "checking_registration", "ts": time.time_ns()})
